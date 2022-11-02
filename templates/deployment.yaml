@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "datadog-agent.fullname" . }}
+  labels:
+    {{- include "datadog-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "datadog-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "datadog-agent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "datadog-agent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["bash", "/scripts/setup"]
+          volumeMounts:
+          - name: scripts
+            mountPath: /scripts
+          - name: configs
+            mountPath: /configs
+          - name: integrations
+            mountPath: /integrations
+        {{- with .Values.extraInitContainers }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: agent
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- if .Values.datadog.apiKey }}
+          - name: DD_API_KEY
+            value: "{{ .Values.datadog.apiKey }}"
+          {{- end }}
+          {{- if .Values.datadog.apiKeySecret }}
+          - name: DD_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.datadog.apiKeySecret }}
+                key: datadogApiKey
+                optional: false
+          {{- end }}
+          - name: DD_LOG_LEVEL
+            value: {{ .Values.datadog.logLevel }}
+          - name: DD_HEALTH_PORT
+            value: "5555"
+          - name: KUBERNETES
+            value: "no"
+          - name: DD_CLUSTER_AGENT_ENABLED
+            value: "false"
+          - name: DD_APM_ENABLED
+            value: "false"
+          {{- with .Values.extraEnvVars }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 5555
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+          volumeMounts:
+          - name: integrations
+            mountPath: /etc/datadog-agent/conf.d
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- with .Values.extraContainers }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ include "datadog-agent.fullname" . }}-scripts
+        - name: configs
+          configMap:
+            name: {{ include "datadog-agent.fullname" . }}-configs
+        - name: integrations
+          emptyDir: {}
+      {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

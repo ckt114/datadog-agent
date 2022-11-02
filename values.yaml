@@ -1,0 +1,122 @@
+# Default values for datadog-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+
+datadog:
+  # Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
+  apiKey: ''
+  # Secret to use as Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
+  apiKeySecret: ''
+  logLevel: INFO
+
+image:
+  repository: gcr.io/datadoghq/agent
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "7.39.0"
+
+# Add additional init container specs.
+# extraInitContainers:
+# - name: init1
+#   image: initImage:latest
+#   ...
+extraInitContainers: {}
+
+# Add additional container specs.
+# extraContainers:
+# - name: container1
+#   image: busybox:latest
+#   ...
+extraContainers: {}
+
+# Add additional evars.
+# extraEnvVars:
+# - name: KEY1
+#   value: value1
+extraEnvVars: {}
+
+# Add additional volume specs.
+# extraVolumes:
+# - name: volume1
+#   ...
+extraVolumes: {}
+
+# Add additional configmap scripts.
+# extraScripts:
+#   script1: |
+#     echo This is script1
+#   script2: |
+#     echo this is script 2
+extraScripts: {}
+
+# Define Datadog integration definitions.
+# References:
+# - https://docs.datadoghq.com/integrations/
+# - https://github.com/DataDog/integrations-core
+#
+# Each integration must have the exact name defined in the integrations-core page with .yaml extension.
+#
+# integrations:
+#   postgres.yaml: |
+#     instances:
+#     - host: localhost
+#       username: dbuser
+#       ...
+#     - ...
+#   tcp_check.yaml: |
+#     instances:
+#     - name: check1
+#       host: hostIP
+#       port: 3000
+#       ...
+#     - ...
+#
+integrations: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 5555
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
