@@ -34,9 +34,9 @@ spec:
           - name: scripts
             mountPath: /scripts
           - name: configs
-            mountPath: /input
+            mountPath: /configs
           - name: integrations
-            mountPath: /output
+            mountPath: /integrations
         {{- with .Values.extraInitContainers }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
