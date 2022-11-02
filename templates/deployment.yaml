@@ -25,11 +25,19 @@ spec:
       serviceAccountName: {{ include "datadog-agent.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- with .Values.initContainers }}
       initContainers:
-        {{- toYaml . | nindent 8 }}
-
-      {{- end }}
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["bash", "/input/setup"]
+          volumeMounts:
+          - name: configs
+            mountPath: /input
+          - name: integrations
+            mountPath: /output
+        {{- with .Values.extraInitContainers }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: agent
           securityContext:
@@ -59,6 +67,9 @@ spec:
             value: "false"
           - name: DD_APM_ENABLED
             value: "false"
+          {{- with .Values.extraEnvVars }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 5555
@@ -72,38 +83,21 @@ spec:
               path: /ready
               port: http
           volumeMounts:
-          - name: config
+          - name: integrations
             mountPath: /etc/datadog-agent/conf.d
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if .Values.cloudsqlproxy.enabled }}
-        - name: cloud-sql-proxy
-          image: "{{ .Values.cloudsqlproxy.image.repository }}:{{ .Values.cloudsqlproxy.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.cloudsqlproxy.image.pullPolicy }}
-          command:
-            - /cloud_sql_proxy
-            - -instances={{ .Values.cloudsqlproxy.instance }}
-            {{- if .Values.cloudsqlproxy.serviceAccountKeySecret }}
-            - -credential_file=/secrets/credentials.json
-            {{- end }}
-          volumeMounts:
-          {{- if .Values.cloudsqlproxy.serviceAccountKeySecret }}
-          - name: sa-key
-            mountPath: /secrets
-          {{- end }}
-          resources:
-            {{- toYaml .Values.cloudsqlproxy.resources | nindent 12 }}
+        {{- with .Values.extraContainers }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
-      - name: setup
-        configMap:
-          name: {{ include "datadog-agent.fullname" . }}
-      - name: config
-        emptyDir: {}
-      {{- if and .Values.cloudsqlproxy.enabled .Values.cloudsqlproxy.serviceAccountKeySecret }}
-      - name: sa-key
-        secret:
-          secretName: {{ .Values.cloudsqlproxy.serviceAccountKeySecret }}
+        - name: configs
+          configMap:
+            name: {{ include "datadog-agent.fullname" . }}
+        - name: integrations
+          emptyDir: {}
+      {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

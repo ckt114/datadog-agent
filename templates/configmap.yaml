@@ -6,10 +6,8 @@ metadata:
     {{- include "datadog-agent.labels" . | nindent 4 }}
 data:
   setup: |
-    mkdir -p /output/{{ .Values.database.type }}.d
-    sed "s/DB_USERNAME/$DB_USERNAME/g" /input/config.yaml | sed "s/DB_PASSWORD/$DB_PASSWORD/g" > /output/{{ .Values.database.type }}.d/config.yaml
   config.yaml: |
-    {{- with .Values.database.config }}
+    {{- with .Values.integrations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 
