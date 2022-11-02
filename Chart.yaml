@@ -1,5 +1,5 @@
 apiVersion: v2
-name: datadog-sql-metrics
+name: datadog-agent
 description: A helm chart to install Datadog agent to export SQL query data as Datadog metrics.
 
 # A chart can be either an 'application' or a 'library' chart.

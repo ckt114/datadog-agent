@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "datadog-sql-metrics.fullname" . }}
+  name: {{ include "datadog-agent.fullname" . }}
   labels:
-    {{- include "datadog-sql-metrics.labels" . | nindent 4 }}
+    {{- include "datadog-agent.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "datadog-sql-metrics.selectorLabels" . | nindent 6 }}
+      {{- include "datadog-agent.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -16,40 +16,20 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "datadog-sql-metrics.selectorLabels" . | nindent 8 }}
+        {{- include "datadog-agent.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "datadog-sql-metrics.serviceAccountName" . }}
+      serviceAccountName: {{ include "datadog-agent.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.initContainers }}
       initContainers:
-        - name: setup
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["bash", "/input/setup"]
-          env:
-          - name: DB_USERNAME
-            value: "{{ .Values.database.username }}"
-          {{- if .Values.database.password }}
-          - name: DB_PASSWORD
-            value: "{{ .Values.database.password }}"
-          {{- end}}
-          {{- if .Values.database.passwordSecret }}
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.database.passwordSecret }}
-                key: dbPassword
-                optional: false
-          {{- end }}
-          volumeMounts:
-          - name: setup
-            mountPath: /input
-          - name: config
-            mountPath: /output
+        {{- toYaml . | nindent 8 }}
+
+      {{- end }}
       containers:
         - name: agent
           securityContext:
@@ -117,7 +97,7 @@ spec:
       volumes:
       - name: setup
         configMap:
-          name: {{ include "datadog-sql-metrics.fullname" . }}
+          name: {{ include "datadog-agent.fullname" . }}
       - name: config
         emptyDir: {}
       {{- if and .Values.cloudsqlproxy.enabled .Values.cloudsqlproxy.serviceAccountKeySecret }}

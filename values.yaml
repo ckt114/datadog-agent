@@ -1,4 +1,4 @@
-# Default values for datadog-sql-metrics.
+# Default values for datadog-agent.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -6,11 +6,22 @@ nameOverride: ""
 fullnameOverride: ""
 imagePullSecrets: []
 
+datadog:
+  # Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
+  apiKey: ''
+  # Secret to use as Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
+  apiKeySecret: ''
+  logLevel: INFO
+
+initContainers:
+
 image:
   repository: gcr.io/datadoghq/agent
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "7.39.0"
+
+extraVolumes: {}
 
 cloudsqlproxy:
   enabled: false
@@ -26,13 +37,6 @@ cloudsqlproxy:
   #       [SECRET DATA]
   serviceAccountKeySecret: ''
   resources: {}
-
-datadog:
-  # Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
-  apiKey: ''
-  # Secret to use as Datadog API key. Define `apiKey` or `apiKeySecret`, not both.
-  apiKeySecret: ''
-  logLevel: INFO
 
 # References
 # - PostgreSQL: https://github.com/DataDog/integrations-core/blob/master/postgres/datadog_checks/postgres/data/conf.yaml.example

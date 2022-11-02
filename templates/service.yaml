@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "datadog-sql-metrics.fullname" . }}
+  name: {{ include "datadog-agent.fullname" . }}
   labels:
-    {{- include "datadog-sql-metrics.labels" . | nindent 4 }}
+    {{- include "datadog-agent.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "datadog-sql-metrics.selectorLabels" . | nindent 4 }}
+    {{- include "datadog-agent.selectorLabels" . | nindent 4 }}

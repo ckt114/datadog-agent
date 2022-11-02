@@ -5,7 +5,7 @@ Run Datadog agent as Deployment instead of DaemonSet.
 ## Installing
 
 ```console
-$ helm upgrade --install datadog-sql-metrics $PWD
+$ helm upgrade --install datadog-agent $PWD
 ```
 
 ## Setup

@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "datadog-sql-metrics.name" -}}
+{{- define "datadog-agent.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "datadog-sql-metrics.fullname" -}}
+{{- define "datadog-agent.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "datadog-sql-metrics.chart" -}}
+{{- define "datadog-agent.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "datadog-sql-metrics.labels" -}}
-helm.sh/chart: {{ include "datadog-sql-metrics.chart" . }}
-{{ include "datadog-sql-metrics.selectorLabels" . }}
+{{- define "datadog-agent.labels" -}}
+helm.sh/chart: {{ include "datadog-agent.chart" . }}
+{{ include "datadog-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "datadog-sql-metrics.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "datadog-sql-metrics.name" . }}
+{{- define "datadog-agent.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "datadog-agent.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "datadog-sql-metrics.serviceAccountName" -}}
+{{- define "datadog-agent.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "datadog-sql-metrics.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "datadog-agent.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
