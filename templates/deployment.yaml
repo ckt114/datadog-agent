@@ -29,8 +29,10 @@ spec:
         - name: setup
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["bash", "/input/setup"]
+          command: ["bash", "/scripts/setup"]
           volumeMounts:
+          - name: scripts
+            mountPath: /scripts
           - name: configs
             mountPath: /input
           - name: integrations
@@ -91,9 +93,12 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
+        - name: scripts
+          configMap:
+            name: {{ include "datadog-agent.fullname" . }}-scripts
         - name: configs
           configMap:
-            name: {{ include "datadog-agent.fullname" . }}
+            name: {{ include "datadog-agent.fullname" . }}-configs
         - name: integrations
           emptyDir: {}
       {{- with .Values.extraVolumes }}

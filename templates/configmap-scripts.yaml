@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "datadog-agent.fullname" . }}
+  name: {{ include "datadog-agent.fullname" . }}-scripts
   labels:
     {{- include "datadog-agent.labels" . | nindent 4 }}
 data:
@@ -10,10 +10,9 @@ data:
     for i in $(ls|grep .yaml); do
       folder=$(echo $i|awk -F . '{print $1}') 
       mkdir -p "/output/${folder}.d"
-      mv $i "/output/${folder}.d/config.yaml"
+      cp $i "/output/${folder}.d/config.yaml"
     done
-  {{- with .Values.integrations }}
+  {{- with .Values.extraScripts }}
     {{- toYaml . | nindent 2 }}
   {{- end }}
-
 
