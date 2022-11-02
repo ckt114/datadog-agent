@@ -26,18 +26,18 @@ image:
 #   ...
 extraInitContainers: {}
 
-# Add additional evars.
-# extraEnvVars:
-# - name: KEY1
-#   value: value1
-extraEnvVars: {}
-
 # Add additional container specs.
 # extraContainers:
 # - name: container1
 #   image: busybox:latest
 #   ...
 extraContainers: {}
+
+# Add additional evars.
+# extraEnvVars:
+# - name: KEY1
+#   value: value1
+extraEnvVars: {}
 
 # Add additional volume specs.
 # extraVolumes:
