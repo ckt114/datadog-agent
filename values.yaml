@@ -32,7 +32,27 @@ extraContainers: {}
 extraVolumes: {}
 
 # Define Datadog integration definitions.
-# References: https://docs.datadoghq.com/integrations/
+# References:
+# - https://docs.datadoghq.com/integrations/
+# - https://github.com/DataDog/integrations-core
+#
+# Each integration must have the exact name defined in the integrations-core page with .yaml extension.
+#
+# integrations:
+#   postgres.yaml: |
+#     instances:
+#     - host: localhost
+#       username: dbuser
+#       ...
+#     - ...
+#   tcp_check.yaml: |
+#     instances:
+#     - name: check1
+#       host: hostIP
+#       port: 3000
+#       ...
+#     - ...
+#
 integrations: {}
 
 serviceAccount:

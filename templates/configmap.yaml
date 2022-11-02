@@ -6,8 +6,14 @@ metadata:
     {{- include "datadog-agent.labels" . | nindent 4 }}
 data:
   setup: |
-  config.yaml: |
-    {{- with .Values.integrations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    cd /input
+    for i in $(ls|grep .yaml); do
+      folder=$(echo $i|awk -F . '{print $1}') 
+      mkdir -p "/output/${folder}.d"
+      mv $i "/output/${folder}.d/config.yaml"
+    done
+  {{- with .Values.integrations }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+
 
